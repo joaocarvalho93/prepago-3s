@@ -1,11 +1,13 @@
-import { repositorio } from "@/dados/repositorio";
+"use client";
+import { useEstado } from "@/dados/EstadoProvider";
 import { percentualFormulario } from "@/dominio/checklist";
 import { pendencias, proximaEtapa } from "@/dominio/regras";
+import { Carregando } from "@/componentes/Carregando";
 import { Quadro } from "@/componentes/Quadro";
 import { reais } from "@/componentes/formato";
 
-export default async function Comercial() {
-  const e = await repositorio.carregar();
+export default function Comercial() {
+  const { estado: e, pronto } = useEstado();
   const abertos = e.deals.filter((d) => d.etapa !== "perd");
   const prontos = abertos.filter((d) => {
     const p = proximaEtapa("deal", d.etapa);
@@ -21,9 +23,11 @@ export default async function Comercial() {
     <>
       <header className="top"><h1>Pipeline comercial</h1></header>
       <div className="content">
-        <div className="kpis">{kpis.map(([r, v]) => <div className="kpi" key={r}><span>{r}</span><b>{v}</b></div>)}</div>
-        <p className="note">Arraste os cartões entre as etapas. Se faltar algum campo obrigatório, o avanço é bloqueado e a lista de pendências aparece.</p>
-        <Quadro tipo="deal" estado={e} />
+        {!pronto ? <Carregando /> : <>
+          <div className="kpis">{kpis.map(([r, v]) => <div className="kpi" key={r}><span>{r}</span><b>{v}</b></div>)}</div>
+          <p className="note">Arraste os cartões entre as etapas. Se faltar algum campo obrigatório, o avanço é bloqueado e a lista de pendências aparece.</p>
+          <Quadro tipo="deal" />
+        </>}
       </div>
     </>
   );

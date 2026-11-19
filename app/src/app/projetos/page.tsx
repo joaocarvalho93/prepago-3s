@@ -1,9 +1,11 @@
-import { repositorio } from "@/dados/repositorio";
+"use client";
+import { useEstado } from "@/dados/EstadoProvider";
 import { percentualFormulario } from "@/dominio/checklist";
+import { Carregando } from "@/componentes/Carregando";
 import { Quadro } from "@/componentes/Quadro";
 
-export default async function Projetos() {
-  const e = await repositorio.carregar();
+export default function Projetos() {
+  const { estado: e, pronto } = useEstado();
   const ps = e.projetos;
   const kpis: [string, number][] = [
     ["Projetos ativos", ps.filter((p) => p.etapa !== "conc").length],
@@ -15,9 +17,11 @@ export default async function Projetos() {
     <>
       <header className="top"><h1>Pipeline de projetos</h1></header>
       <div className="content">
-        <div className="kpis">{kpis.map(([r, v]) => <div className="kpi" key={r}><span>{r}</span><b>{v}</b></div>)}</div>
-        <p className="note">Os projetos são criados automaticamente quando o deal chega a Contrato de setup. O portão P2 só libera com contrato assinado, setup pago e formulário 100%.</p>
-        <Quadro tipo="projeto" estado={e} />
+        {!pronto ? <Carregando /> : <>
+          <div className="kpis">{kpis.map(([r, v]) => <div className="kpi" key={r}><span>{r}</span><b>{v}</b></div>)}</div>
+          <p className="note">Os projetos são criados automaticamente quando o deal chega a Contrato de setup. O portão P2 só libera com contrato assinado, setup pago e formulário 100%.</p>
+          <Quadro tipo="projeto" />
+        </>}
       </div>
     </>
   );

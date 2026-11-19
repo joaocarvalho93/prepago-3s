@@ -1,15 +1,23 @@
-import { redirect } from "next/navigation";
-import { repositorio } from "@/dados/repositorio";
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useEstado } from "@/dados/EstadoProvider";
+import { Carregando } from "@/componentes/Carregando";
 import { ListaFormularios } from "@/componentes/ListaFormularios";
 
-export default async function Formularios() {
-  const e = await repositorio.carregar();
+export default function Formularios() {
+  const { estado: e, pronto } = useEstado();
+  const router = useRouter();
   const primeiro = e.deals.find((d) => e.formularios[d.id]);
-  if (primeiro) redirect(`/formularios/${primeiro.id}`);
+  useEffect(() => {
+    if (pronto && primeiro) router.replace(`/formularios/${primeiro.id}`);
+  }, [pronto, primeiro, router]);
   return (
     <>
       <header className="top"><h1>Formulários do cliente</h1></header>
-      <div className="content"><div className="fw"><ListaFormularios estado={e} /><div className="box">Nenhum formulário gerado.</div></div></div>
+      <div className="content">
+        {!pronto || primeiro ? <Carregando /> : <div className="fw"><ListaFormularios /><div className="box">Nenhum formulário gerado.</div></div>}
+      </div>
     </>
   );
 }

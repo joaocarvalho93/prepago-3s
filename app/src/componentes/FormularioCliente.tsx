@@ -1,23 +1,18 @@
 "use client";
-// Formulário de onboarding, como o cliente o vê pelo link. Cada campo é salvo ao sair dele.
-import { useState, useTransition } from "react";
+// Formulário de onboarding, como o cliente o vê pelo link. Cada mudança é salva na hora.
 import { CHECKLIST, itemCompleto, percentualFormulario, type Campo, type ItemChecklist } from "@/dominio/checklist";
-import type { Deal, RespostasFormulario } from "@/dominio/tipos";
-import { salvarRespostaAcao } from "@/app/acoes";
+import type { Deal } from "@/dominio/tipos";
+import { useEstado } from "@/dados/EstadoProvider";
+import { salvarResposta } from "@/dominio/operacoes";
 
-export function FormularioCliente({ deal, respostas }: { deal: Deal; respostas: RespostasFormulario }) {
-  const [valores, setValores] = useState<RespostasFormulario>(respostas);
-  const [, iniciar] = useTransition();
+export function FormularioCliente({ deal }: { deal: Deal }) {
+  const { estado, executar } = useEstado();
+  const valores = estado.formularios[deal.id] ?? {};
   const pc = percentualFormulario(valores);
   // Provisório: o link definitivo usará o token da tabela `formulario`.
   const link = `3s-onboarding.exemplo/f/${deal.id.toLowerCase()}`;
-
-  const alterar = (item: string, campo: string, valor: string | string[], persistir: boolean) => {
-    setValores((v) => ({ ...v, [item]: { ...v[item], [campo]: valor } }));
-    if (persistir) iniciar(async () => { await salvarRespostaAcao(deal.id, item, campo, valor); });
-  };
-  const persistir = (item: string, campo: string) =>
-    iniciar(async () => { await salvarRespostaAcao(deal.id, item, campo, valores[item]?.[campo] ?? ""); });
+  const alterar = (item: string, campo: string, valor: string | string[]) =>
+    executar((e) => salvarResposta(e, deal.id, item, campo, valor));
 
   return (
     <div className="portal">
@@ -41,7 +36,7 @@ export function FormularioCliente({ deal, respostas }: { deal: Deal; respostas: 
               <div className="ff">
                 {it.campos.map((c) => (
                   <CampoFormulario key={c.nome} item={it} campo={c} valor={valores[it.chave]?.[c.nome]} dealId={deal.id}
-                    onAlterar={(v, p) => alterar(it.chave, c.nome, v, p)} onSair={() => persistir(it.chave, c.nome)} />
+                    onAlterar={(v) => alterar(it.chave, c.nome, v)} />
                 ))}
               </div>
             </div>
@@ -52,9 +47,9 @@ export function FormularioCliente({ deal, respostas }: { deal: Deal; respostas: 
   );
 }
 
-function CampoFormulario({ item, campo: c, valor, dealId, onAlterar, onSair }: {
+function CampoFormulario({ item, campo: c, valor, dealId, onAlterar }: {
   item: ItemChecklist; campo: Campo; valor: string | string[] | undefined; dealId: string;
-  onAlterar: (v: string | string[], persistir: boolean) => void; onSair: () => void;
+  onAlterar: (v: string | string[]) => void;
 }) {
   const id = `f-${dealId}-${item.chave}-${c.nome}`;
   const texto = typeof valor === "string" ? valor : "";
@@ -64,7 +59,7 @@ function CampoFormulario({ item, campo: c, valor, dealId, onAlterar, onSair }: {
       <div style={{ gridColumn: "1/-1", fontSize: 13, color: "var(--mut)", fontWeight: 500 }}>{c.rotulo}
         <div className="ms">{c.opcoes!.map((o) => (
           <label key={o}><input type="checkbox" checked={lista.includes(o)}
-            onChange={(e) => onAlterar(e.target.checked ? [...lista, o] : lista.filter((x) => x !== o), true)} />{o}</label>
+            onChange={(e) => onAlterar(e.target.checked ? [...lista, o] : lista.filter((x) => x !== o))} />{o}</label>
         ))}</div>
       </div>
     );
@@ -73,19 +68,19 @@ function CampoFormulario({ item, campo: c, valor, dealId, onAlterar, onSair }: {
   if (c.tipo === "arquivo") {
     // Provisório: guarda só o nome do arquivo. O envio real irá para o Storage do Supabase.
     entrada = <>
-      <input className="in" id={id} type="file" style={{ paddingTop: 7 }} onChange={(e) => onAlterar(e.target.files?.[0]?.name ?? "", true)} />
+      <input className="in" id={id} type="file" style={{ paddingTop: 7 }} onChange={(e) => onAlterar(e.target.files?.[0]?.name ?? "")} />
       {texto && <span className="fn">Enviado: {texto}</span>}
     </>;
   } else if (c.tipo === "selecao") {
-    entrada = <select className="in" id={id} value={texto} onChange={(e) => onAlterar(e.target.value, true)}>
+    entrada = <select className="in" id={id} value={texto} onChange={(e) => onAlterar(e.target.value)}>
       <option value="">Selecione</option>{c.opcoes!.map((o) => <option key={o}>{o}</option>)}
     </select>;
   } else if (c.tipo === "area") {
-    entrada = <textarea className="in" id={id} value={texto} onChange={(e) => onAlterar(e.target.value, false)} onBlur={onSair} />;
+    entrada = <textarea className="in" id={id} value={texto} onChange={(e) => onAlterar(e.target.value)} />;
   } else {
     const tipos: Record<string, string> = { data: "date", numero: "number", email: "email" };
     entrada = <input className="in" id={id} type={tipos[c.tipo ?? ""] ?? "text"} value={texto}
-      onChange={(e) => onAlterar(e.target.value, c.tipo === "data")} onBlur={c.tipo === "data" ? undefined : onSair} />;
+      onChange={(e) => onAlterar(e.target.value)} />;
   }
   return <label htmlFor={id}>{c.rotulo}{c.opcional ? " (opcional)" : ""}{entrada}</label>;
 }

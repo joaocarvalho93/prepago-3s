@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
-import { repositorio } from "@/dados/repositorio";
-import { Navegacao } from "@/componentes/Navegacao";
-import { restaurarExemploAcao } from "./acoes";
+import { EstadoProvider } from "@/dados/EstadoProvider";
+import { Navegacao, RestaurarExemplo } from "@/componentes/Navegacao";
 import "./globals.css";
 
-export const metadata: Metadata = { title: "Pipelines 3S", description: "MVP dos pipelines comercial e de projetos do plano pré-pago" };
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Pipelines 3S",
+  description: "Versão de teste dos pipelines comercial e de projetos do plano pré-pago",
+  robots: { index: false, follow: false },
+};
 
-export default async function Layout({ children }: { children: React.ReactNode }) {
-  const e = await repositorio.carregar();
-  const contagens = {
-    comercial: e.deals.filter((d) => d.etapa !== "perd").length,
-    projetos: e.projetos.length,
-    formularios: Object.keys(e.formularios).length,
-  };
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <head>
@@ -22,17 +18,17 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <div className="app">
-          <nav className="side" aria-label="Navegação">
-            <div className="logo"><i>3S</i><span>Pipelines</span></div>
-            <Navegacao contagens={contagens} />
-            <form action={restaurarExemploAcao} style={{ marginTop: "auto" }}>
-              <button className="nav" style={{ width: "100%", fontSize: 13 }}>Restaurar exemplo</button>
-            </form>
-            <small style={{ marginTop: 0 }}>MVP · dados fictícios</small>
-          </nav>
-          <div className="main">{children}</div>
-        </div>
+        <EstadoProvider>
+          <div className="app">
+            <nav className="side" aria-label="Navegação">
+              <div className="logo"><i>3S</i><span>Pipelines</span></div>
+              <Navegacao />
+              <RestaurarExemplo />
+              <small style={{ marginTop: 0 }}>Versão de teste · dados fictícios salvos só neste navegador</small>
+            </nav>
+            <div className="main">{children}</div>
+          </div>
+        </EstadoProvider>
       </body>
     </html>
   );

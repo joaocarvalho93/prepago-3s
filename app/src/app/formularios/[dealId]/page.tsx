@@ -1,21 +1,27 @@
-import { notFound } from "next/navigation";
-import { repositorio } from "@/dados/repositorio";
+"use client";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEstado } from "@/dados/EstadoProvider";
+import { Carregando } from "@/componentes/Carregando";
 import { FormularioCliente } from "@/componentes/FormularioCliente";
 import { ListaFormularios } from "@/componentes/ListaFormularios";
 
-export default async function Formulario({ params }: { params: Promise<{ dealId: string }> }) {
-  const { dealId } = await params;
-  const e = await repositorio.carregar();
+export default function Formulario() {
+  const { dealId } = useParams<{ dealId: string }>();
+  const { estado: e, pronto } = useEstado();
   const deal = e.deals.find((d) => d.id === dealId);
-  if (!deal || !e.formularios[dealId]) notFound();
   return (
     <>
       <header className="top"><h1>Formulários do cliente</h1></header>
       <div className="content">
-        <div className="fw">
-          <ListaFormularios estado={e} atual={dealId} />
-          <FormularioCliente key={dealId} deal={deal} respostas={e.formularios[dealId]} />
-        </div>
+        {!pronto ? <Carregando /> : !deal || !e.formularios[dealId] ? (
+          <div className="box">Formulário não encontrado. <Link href="/formularios">Ver todos</Link></div>
+        ) : (
+          <div className="fw">
+            <ListaFormularios atual={dealId} />
+            <FormularioCliente key={dealId} deal={deal} />
+          </div>
+        )}
       </div>
     </>
   );

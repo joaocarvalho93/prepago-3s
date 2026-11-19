@@ -1,21 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
 import { percentualFormulario } from "@/dominio/checklist";
 import { ETAPAS_GERAR_FORMULARIO, nomeEtapa } from "@/dominio/regras";
-import type { Estado } from "@/dominio/tipos";
-import { gerarFormularioAcao } from "@/app/acoes";
+import { useEstado } from "@/dados/EstadoProvider";
+import { gerarFormulario } from "@/dominio/operacoes";
 
-export function ListaFormularios({ estado, atual }: { estado: Estado; atual?: string }) {
+export function ListaFormularios({ atual }: { atual?: string }) {
+  const { estado, executar } = useEstado();
   const router = useRouter();
-  const [, iniciar] = useTransition();
   const comForm = estado.deals.filter((d) => estado.formularios[d.id]);
   const candidatos = estado.deals.filter((d) => !estado.formularios[d.id] && ETAPAS_GERAR_FORMULARIO.includes(d.etapa));
-  const gerar = (id: string) => iniciar(async () => {
-    const r = await gerarFormularioAcao(id);
-    if (r.ok) router.push(`/formularios/${id}`);
-  });
+  const gerar = (id: string) => {
+    if (executar((e) => gerarFormulario(e, id)).ok) router.push(`/formularios/${id}`);
+  };
   return (
     <div className="fli">
       <p className="note" style={{ margin: 0 }}>Formulários gerados a partir do deal. O progresso aparece no cartão do deal e libera o portão P2 do projeto.</p>

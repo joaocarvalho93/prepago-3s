@@ -1,19 +1,30 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEstado } from "@/dados/EstadoProvider";
 
-const ITENS = [
-  { href: "/comercial", nome: "Pipeline comercial", chave: "comercial" },
-  { href: "/projetos", nome: "Pipeline de projetos", chave: "projetos" },
-  { href: "/formularios", nome: "Formulários do cliente", chave: "formularios" },
-] as const;
-
-export function Navegacao({ contagens }: { contagens: Record<(typeof ITENS)[number]["chave"], number> }) {
+export function Navegacao() {
   const atual = usePathname();
-  return ITENS.map((i) => (
+  const { estado: e } = useEstado();
+  const itens = [
+    { href: "/comercial", nome: "Pipeline comercial", n: e.deals.filter((d) => d.etapa !== "perd").length },
+    { href: "/projetos", nome: "Pipeline de projetos", n: e.projetos.length },
+    { href: "/formularios", nome: "Formulários do cliente", n: Object.keys(e.formularios).length },
+  ];
+  return itens.map((i) => (
     <Link key={i.href} href={i.href} className="nav" aria-current={atual.startsWith(i.href) ? "page" : undefined}>
       {i.nome}
-      <b>{contagens[i.chave]}</b>
+      <b>{i.n}</b>
     </Link>
   ));
+}
+
+export function RestaurarExemplo() {
+  const { restaurarExemplo } = useEstado();
+  return (
+    <button className="nav" style={{ width: "100%", fontSize: 13, marginTop: "auto" }}
+      onClick={() => confirm("Apagar suas alterações e voltar aos dados de exemplo?") && restaurarExemplo()}>
+      Restaurar exemplo
+    </button>
+  );
 }

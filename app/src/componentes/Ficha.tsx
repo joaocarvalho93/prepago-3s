@@ -1,25 +1,22 @@
 "use client";
 // Ficha do deal ou do projeto (painel lateral), no molde da ficha de registro de um CRM.
 import Link from "next/link";
-import { useOptimistic, useTransition } from "react";
 import { CHECKLIST, itemCompleto, percentualFormulario } from "@/dominio/checklist";
 import { avaliarEtapa, ETAPAS_DEAL, ETAPAS_GERAR_FORMULARIO, ETAPAS_PROJETO, nomeEtapa, PORTAO_DA_ETAPA, proximaEtapa, type Tipo } from "@/dominio/regras";
-import type { Deal, Estado, Projeto } from "@/dominio/tipos";
-import { atualizarCampoAcao, gerarFormularioAcao } from "@/app/acoes";
+import type { Deal, Projeto } from "@/dominio/tipos";
+import { useEstado } from "@/dados/EstadoProvider";
+import { atualizarCampo, gerarFormulario } from "@/dominio/operacoes";
 import type { Bloqueio } from "./Quadro";
 import { dataHora } from "./formato";
 
 type Props = {
-  tipo: Tipo; id: string; estado: Estado;
+  tipo: Tipo; id: string;
   onFechar: () => void; onAbrir: (t: Tipo, id: string) => void; onMover: (destino: string) => void;
   onAviso: (t: string) => void; onBloqueio: (b: Bloqueio) => void;
 };
 
-export function Ficha({ tipo, id, estado, onFechar, onAbrir, onMover, onAviso, onBloqueio }: Props) {
-  const [, iniciar] = useTransition();
-  // Mostra a mudança na hora; o servidor confirma e a página é revalidada.
-  const [otimista, aplicarOtimista] = useOptimistic<Record<string, string | number | boolean>, [string, string | number | boolean]>(
-    {}, (atual, [campo, valor]) => ({ ...atual, [campo]: valor }));
+export function Ficha({ tipo, id, onFechar, onAbrir, onMover, onAviso, onBloqueio }: Props) {
+  const { estado, executar } = useEstado();
   const o = tipo === "deal" ? estado.deals.find((x) => x.id === id) : estado.projetos.find((x) => x.id === id);
   if (!o) return null;
   const d = tipo === "deal" ? (o as Deal) : estado.deals.find((x) => x.id === (o as Projeto).dealId)!;
@@ -29,20 +26,17 @@ export function Ficha({ tipo, id, estado, onFechar, onAbrir, onMover, onAviso, o
   const prox = o.etapa === "perd" ? null : proximaEtapa(tipo, o.etapa);
   const regras = prox ? avaliarEtapa(tipo, o, prox, estado) : [];
 
-  const salvar = (campo: string, valor: string | number | boolean) =>
-    iniciar(async () => {
-      aplicarOtimista([campo, valor]);
-      const r = await atualizarCampoAcao(tipo, id, campo, valor);
-      if (!r.ok) onAviso(r.erro);
-    });
-  const gerar = () =>
-    iniciar(async () => {
-      const r = await gerarFormularioAcao(d.id);
-      if (r.ok) onAviso(r.aviso);
-      else onBloqueio({ erro: r.erro, pendencias: [], tipo, id });
-    });
+  const salvar = (campo: string, valor: string | number | boolean) => {
+    const r = executar((e) => atualizarCampo(e, tipo, id, campo, valor));
+    if (!r.ok) onAviso(r.erro);
+  };
+  const gerar = () => {
+    const r = executar((e) => gerarFormulario(e, d.id));
+    if (r.ok) onAviso(r.aviso);
+    else onBloqueio({ erro: r.erro, pendencias: [], tipo, id });
+  };
 
-  const reg = { ...(o as unknown as Record<string, string | number | boolean>), ...otimista };
+  const reg = o as unknown as Record<string, string | number | boolean>;
   const texto = (campo: string, rotulo: string, tipoInput = "text", largo = false) => (
     <label className={largo ? "w" : undefined}>
       {rotulo}

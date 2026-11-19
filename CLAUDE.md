@@ -13,7 +13,8 @@ Projeto do João (Coordenação de Novos Negócios) para o 3S Checkout, sistema 
 
 - `app/`: MVP em Next.js + TypeScript (decisão D-005). Ver `app/README.md`.
   - `src/dominio/`: regras dos portões e operações, em código puro e testado (`npm test`). É a fonte da verdade das regras: a tela e o servidor usam o mesmo código.
-  - `src/dados/repositorio.ts`: hoje guarda o estado em memória do servidor; será trocado pela implementação Postgres/Supabase.
+  - `src/dados/EstadoProvider.tsx`: versão de teste, com o estado salvo no navegador de cada pessoa (localStorage). Será trocado pela implementação Supabase, com as regras rodando no servidor.
+  - Publicação da versão de teste na Vercel: `docs/12-versao-de-teste.md`.
   - Telas portadas: pipeline comercial, pipeline de projetos e formulário do cliente. A agenda de instalações ainda não foi portada.
 - `supabase/migrations/`: esquema do banco a partir de `docs/05-modelo-de-dados.md`.
 

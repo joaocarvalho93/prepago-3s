@@ -1,23 +1,24 @@
 "use client";
 // Kanban dos dois pipelines, com a ficha do registro e o bloqueio por pendências.
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { percentualFormulario } from "@/dominio/checklist";
 import { ETAPAS_DEAL, ETAPAS_PROJETO, nomeEtapa, pendencias, PORTAO_DA_ETAPA, proximaEtapa, type Tipo } from "@/dominio/regras";
 import type { Deal, Estado, Projeto } from "@/dominio/tipos";
-import { moverAcao, type RespostaAcao } from "@/app/acoes";
+import { useEstado } from "@/dados/EstadoProvider";
+import { mover as moverOp, type Resultado } from "@/dominio/operacoes";
 import { Ficha } from "./Ficha";
 import { reais } from "./formato";
 
 export type Bloqueio = { erro: string; pendencias: string[]; tipo: Tipo; id: string };
 
-export function Quadro({ tipo, estado }: { tipo: Tipo; estado: Estado }) {
+export function Quadro({ tipo }: { tipo: Tipo }) {
+  const { estado, executar } = useEstado();
   const [busca, setBusca] = useState("");
   const [arrastando, setArrastando] = useState<string | null>(null);
   const [sobre, setSobre] = useState<string | null>(null);
   const [aberto, setAberto] = useState<{ tipo: Tipo; id: string } | null>(null);
   const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
-  const [, iniciar] = useTransition();
 
   const dealDe = (o: Deal | Projeto): Deal => (tipo === "deal" ? (o as Deal) : estado.deals.find((d) => d.id === (o as Projeto).dealId)!);
   const etapas = tipo === "deal" ? ETAPAS_DEAL : ETAPAS_PROJETO;
@@ -29,11 +30,11 @@ export function Quadro({ tipo, estado }: { tipo: Tipo; estado: Estado }) {
     setAviso(t);
     setTimeout(() => setAviso(null), 2800);
   };
-  const tratar = (t: Tipo, id: string) => (r: RespostaAcao) => {
+  const tratar = (t: Tipo, id: string) => (r: Resultado) => {
     if (r.ok) avisar(r.aviso);
     else setBloqueio({ erro: r.erro, pendencias: r.pendencias ?? [], tipo: t, id });
   };
-  const mover = (t: Tipo, id: string, destino: string) => iniciar(async () => tratar(t, id)(await moverAcao(t, id, destino)));
+  const mover = (t: Tipo, id: string, destino: string) => tratar(t, id)(executar((e) => moverOp(e, t, id, destino)));
 
   return (
     <>
@@ -65,7 +66,7 @@ export function Quadro({ tipo, estado }: { tipo: Tipo; estado: Estado }) {
       </div>
 
       {aberto && (
-        <Ficha {...aberto} estado={estado} onFechar={() => setAberto(null)} onAbrir={(t, id) => setAberto({ tipo: t, id })}
+        <Ficha {...aberto} onFechar={() => setAberto(null)} onAbrir={(t, id) => setAberto({ tipo: t, id })}
           onMover={(destino) => mover(aberto.tipo, aberto.id, destino)} onAviso={avisar}
           onBloqueio={setBloqueio} />
       )}
