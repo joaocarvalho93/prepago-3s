@@ -21,7 +21,8 @@ Os dados ficam no `localStorage` do navegador (chave `3s-mvp-v1`). Cada pessoa t
 |---|---|
 | `src/dominio/` | Etapas, portões, regras de avanço, checklist e operações. Código puro, sem dependência de framework |
 | `src/dados/EstadoProvider.tsx` | Guarda o estado no navegador e aplica as operações do domínio. Na versão com Supabase, só este arquivo muda |
-| `src/app/` | Páginas (`/comercial`, `/projetos`, `/formularios/[dealId]`) |
+| `src/dominio/proposta/` | Gerador de Proposta: leitura do diagnóstico, fit de aderência, heurísticas e totais (ver `../docs/13-modulo-proposta.md`) |
+| `src/app/` | Páginas (`/comercial`, `/projetos`, `/propostas/[dealId]`, `/formularios/[dealId]`) |
 | `src/componentes/` | Kanban, ficha do registro e formulário do cliente |
 
 ## Como as regras são aplicadas

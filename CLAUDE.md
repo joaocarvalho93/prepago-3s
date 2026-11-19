@@ -16,6 +16,7 @@ Projeto do João (Coordenação de Novos Negócios) para o 3S Checkout, sistema 
   - `src/dados/EstadoProvider.tsx`: versão de teste, com o estado salvo no navegador de cada pessoa (localStorage). Será trocado pela implementação Supabase, com as regras rodando no servidor.
   - Publicação da versão de teste na Vercel: `docs/12-versao-de-teste.md`.
   - Telas portadas: pipeline comercial, pipeline de projetos e formulário do cliente. A agenda de instalações ainda não foi portada.
+  - `src/dominio/proposta/`: Gerador de Proposta (diagnóstico de aderência → fit → proposta editável). Ver `docs/13-modulo-proposta.md`. Pesos e preços fictícios; regras comerciais em `config.ts`.
 - `supabase/migrations/`: esquema do banco a partir de `docs/05-modelo-de-dados.md`.
 
 ## Regras de negócio essenciais
@@ -39,3 +40,4 @@ Projeto do João (Coordenação de Novos Negócios) para o 3S Checkout, sistema 
 ## Convenções
 - Idioma: português do Brasil em interface, documentação e commits.
 - Dados de clientes e valores no protótipo são fictícios. Não incluir dados reais da empresa em repositório público.
+- O repositório é **público**: nunca versionar diagnósticos, propostas, planilhas de pesos ou tabelas de preço reais. No código, só dados fictícios.

@@ -49,6 +49,7 @@ flowchart LR
 | 10 | [Glossário](docs/10-glossario.md) | Termos usados no projeto |
 | 11 | [Apresentação](docs/11-apresentacao.md) | Link da apresentação oficial e histórico de versões |
 | 12 | [Versão de teste](docs/12-versao-de-teste.md) | Como publicar o app na Vercel e roteiro para os testadores |
+| 13 | [Módulo Gerador de Proposta](docs/13-modulo-proposta.md) | Proposta inicial gerada a partir do diagnóstico de aderência |
 
 ## Visão de produto
 

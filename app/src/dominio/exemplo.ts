@@ -1,6 +1,7 @@
 // Dados de exemplo fictícios (os mesmos do protótipo). Não usar dados reais de clientes.
 import { CHECKLIST } from "./checklist";
 import { novoProjeto } from "./operacoes";
+import { diagnosticoDeExemplo, type Diagnostico } from "./proposta/diagnostico";
 import type { Deal, Estado, Projeto, RespostasFormulario } from "./tipos";
 
 const CRIADO = new Date("2026-11-18T09:10:00-03:00");
@@ -31,6 +32,12 @@ function deal(id: string, conta: string, segmento: string, lojas: number, dono: 
 
 const projeto = (id: string, dealId: string, etapa: Projeto["etapa"], extra: Partial<Projeto> = {}): Projeto =>
   ({ ...novoProjeto(id, dealId, new Date("2026-11-18T10:00:00-03:00")), etapa, ...extra });
+
+const diagnostico = (semente: string, marca: string, lojas: number, perfil: "forte" | "medio" | "fraco"): Diagnostico => ({
+  ...diagnosticoDeExemplo(semente, marca, lojas, perfil),
+  arquivo: `Diagnóstico - ${marca}.pdf`,
+  recebidoEm: "2026-11-17T14:00:00-03:00",
+});
 
 export function estadoDeExemplo(): Estado {
   return {
@@ -63,5 +70,10 @@ export function estadoDeExemplo(): Estado {
         instalacao: "Qui 26/11 · 08:00 às 10:00 · Carlos Mendes" }),
     ],
     formularios: { D4: formularioCom(5), D5: formularioCom(6), D6: formularioCom(8), D7: formularioCom(8) },
+    diagnosticos: {
+      D3: diagnostico("D3", "Forno Antigo Pizzaria", 4, "medio"),
+      D4: diagnostico("D4", "Brasa Nobre Grill", 12, "forte"),
+    },
+    propostas: {},
   };
 }

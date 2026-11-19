@@ -1,4 +1,6 @@
 // Tipos do domínio. Espelham docs/05-modelo-de-dados.md e o esquema em supabase/migrations.
+import type { Diagnostico } from "./proposta/diagnostico";
+import type { Proposta } from "./proposta/gerador";
 
 export type EtapaDeal = "qual" | "ader" | "prop" | "neg" | "cont" | "pago" | "perd";
 export type EtapaProjeto = "col" | "pron" | "set" | "hom" | "ins" | "gol" | "aco" | "conc";
@@ -60,4 +62,6 @@ export interface Estado {
   deals: Deal[];
   projetos: Projeto[];
   formularios: Record<string, RespostasFormulario>; // chave: dealId
+  diagnosticos: Record<string, Diagnostico>; // chave: dealId
+  propostas: Record<string, Proposta>; // chave: dealId
 }

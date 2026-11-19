@@ -8,6 +8,7 @@ import { useEstado } from "@/dados/EstadoProvider";
 import { atualizarCampo, gerarFormulario } from "@/dominio/operacoes";
 import type { Bloqueio } from "./Quadro";
 import { dataHora } from "./formato";
+import { CaixaProposta } from "./CaixaProposta";
 
 type Props = {
   tipo: Tipo; id: string;
@@ -133,6 +134,8 @@ export function Ficha({ tipo, id, onFechar, onAbrir, onMover, onAviso, onBloquei
                 )}
               </div>
             )}
+
+            {tipo === "deal" && <CaixaProposta deal={d} onAviso={onAviso} />}
 
             <div className="box"><h4>Associações</h4>
               {tipo === "projeto" && (
