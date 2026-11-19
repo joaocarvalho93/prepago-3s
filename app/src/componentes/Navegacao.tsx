@@ -9,6 +9,7 @@ export function Navegacao() {
   const itens = [
     { href: "/comercial", nome: "Pipeline comercial", n: e.deals.filter((d) => d.etapa !== "perd").length },
     { href: "/projetos", nome: "Pipeline de projetos", n: e.projetos.length },
+    { href: "/propostas", nome: "Propostas", n: Object.keys(e.propostas).length },
     { href: "/formularios", nome: "Formulários do cliente", n: Object.keys(e.formularios).length },
   ];
   return itens.map((i) => (

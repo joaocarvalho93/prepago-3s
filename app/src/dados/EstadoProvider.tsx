@@ -24,7 +24,11 @@ function ler(): Estado | null {
     const bruto = localStorage.getItem(CHAVE);
     if (!bruto) return null;
     const e = JSON.parse(bruto) as Estado;
-    return Array.isArray(e?.deals) && Array.isArray(e?.projetos) && e?.formularios ? e : null;
+    if (!(Array.isArray(e?.deals) && Array.isArray(e?.projetos) && e?.formularios)) return null;
+    // Dados salvos antes do módulo de proposta: começam sem diagnósticos nem propostas.
+    e.diagnosticos ??= {};
+    e.propostas ??= {};
+    return e;
   } catch {
     return null;
   }
