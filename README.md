@@ -48,6 +48,7 @@ flowchart LR
 | 09 | [Decisões](docs/09-decisoes.md) | Registro das decisões e das questões em aberto |
 | 10 | [Glossário](docs/10-glossario.md) | Termos usados no projeto |
 | 11 | [Apresentação](docs/11-apresentacao.md) | Link da apresentação oficial e histórico de versões |
+| 12 | [Versão de teste](docs/12-versao-de-teste.md) | Como publicar o app na Vercel e roteiro para os testadores |
 
 ## Visão de produto
 

@@ -24,6 +24,11 @@ Registro das decisões do projeto (no estilo de ADR, Architecture Decision Recor
 - **Decisão:** oferecer agendamento garantido, suporte dedicado e processo presencial como contrapartidas.
 - **Consequência:** as entregas e os limites de cada benefício precisam estar no contrato de setup.
 
+### D-005 · Stack do MVP: Next.js + Postgres (Supabase)
+- **Contexto:** a fase 2 do roadmap precisa sair do protótipo em HTML para um app com banco de dados, mantendo as regras dos portões.
+- **Decisão:** Next.js (App Router, TypeScript) em `app/`, com banco Postgres hospedado no Supabase. As regras dos portões ficam num módulo de domínio puro (`app/src/dominio`), coberto por testes, e são aplicadas no servidor por server actions. O esquema do banco fica em `supabase/migrations`.
+- **Consequência:** a mesma regra roda no servidor (bloqueio) e na tela (lista de pendências). Enquanto o projeto do Supabase não é criado, o app usa um repositório em memória com dados fictícios. O Supabase também cobre autenticação, armazenamento dos arquivos do formulário e o portal do cliente.
+
 ## Em aberto
 
 | # | Questão | Com quem | Status |
