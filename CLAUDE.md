@@ -11,6 +11,12 @@ Projeto do João (Coordenação de Novos Negócios) para o 3S Checkout, sistema 
   - formulário de onboarding do cliente gerado a partir do deal (`FORM`)
   - agenda de instalações com visão interna e visão do cliente (Google Calendar simulado)
 
+- `app/`: MVP em Next.js + TypeScript (decisão D-005). Ver `app/README.md`.
+  - `src/dominio/`: regras dos portões e operações, em código puro e testado (`npm test`). É a fonte da verdade das regras: a tela e o servidor usam o mesmo código.
+  - `src/dados/repositorio.ts`: hoje guarda o estado em memória do servidor; será trocado pela implementação Postgres/Supabase.
+  - Telas portadas: pipeline comercial, pipeline de projetos e formulário do cliente. A agenda de instalações ainda não foi portada.
+- `supabase/migrations/`: esquema do banco a partir de `docs/05-modelo-de-dados.md`.
+
 ## Regras de negócio essenciais
 - O **setup** é pago antes de começar. A **instalação** é uma etapa antes da ativação e pode ser parcelada nas primeiras mensalidades. A **licença** é a mensalidade recorrente.
 - Portões:
@@ -22,11 +28,12 @@ Projeto do João (Coordenação de Novos Negócios) para o 3S Checkout, sistema 
 - A instalação pode ser agendada para projetos nas etapas Setup, Homologação ou Instalação.
 
 ## Próximos passos (fase 2 do roadmap)
-1. Escolher a stack do MVP (sugestão a avaliar: Next.js + Supabase ou similar).
-2. Transformar o modelo de `docs/05-modelo-de-dados.md` em esquema de banco.
-3. Portar o protótipo para componentes, mantendo as regras dos portões.
-4. Integrar com a API do Google Calendar (consulta de horários livres e criação de eventos) para a agenda de instalações.
-5. Portal do cliente com link único para o formulário e o agendamento.
+1. ~~Escolher a stack do MVP~~ (D-005: Next.js + Supabase).
+2. ~~Transformar o modelo em esquema de banco~~ (`supabase/migrations`). Falta o repositório Postgres que lê e grava nesse esquema.
+3. Portar o protótipo para componentes: pipelines e formulário feitos; falta a agenda de instalações.
+4. Login com Supabase Auth e visões por área (comercial, pré-vendas, projetos, financeiro).
+5. Integrar com a API do Google Calendar (consulta de horários livres e criação de eventos) para a agenda de instalações.
+6. Portal do cliente com link único para o formulário e o agendamento.
 
 ## Convenções
 - Idioma: português do Brasil em interface, documentação e commits.
